@@ -25,6 +25,10 @@ Robot được nạp sẵn firmware cho phép người dùng dễ dàng chuyển
 
 Với tính năng dễ dàng chuyển đổi các chế độ, người dùng sẽ chuyển đổi cách thức sử dụng robot linh hoạt mà không cần phải nạp đi nạp lại các chương trình Arduino, khi cần nạp chương trình Arduino để giải quyết bài toán nào đó, chương trình này sẽ lưu tại một vùng nhớ và khởi chạy khi chuyển chế độ bằng nút bấm vào chế độ 2, các tính năng và chế độ khác không bị ảnh hưởng bởi việc nạp chương trình mới. 
 
+## Lập trình
+  Curibot được thiết kế để tương thích việc lập trình Scratch (online và offline), vì vậy các Class và hàm được đóng gói để đơn giản hóa việc tích hợp vào các block của Scratch. 
+  Các hàm Arduino C/C++ API sẽ được hoàn thiện trong thời gian tới để phục vụ việc học lập trình C/C++ cho Curibot. 
 
+## Sử dụng 
 
-  
+  Cài đặt thư viện vào Arduino và nạp file Firmware vào robot, robot sẽ hoàn toàn tương thích và làm việc tốt với phần mềm mBlock.
