@@ -1,69 +1,35 @@
-# Easybot
+# Curibot
 
-Easybot là bộ thư viện viết riêng cho Board EasyControl V1, Core Arduino Nano V3 do STEMbot.vn phát triển
+Curibot là bộ thư viện firmware dành cho bộ kit Curie STEMkit giúp cho các em học sinh từ 10 tuổi có thể dễ dàng làm quen với lắp ráp, lập trình Robot đơn giản với ngôn ngữ Scratch 2.0. 
 
-STEMbot.vn phát triển bộ thư viện Easybot có thể giúp các bạn mới làm quen với Arduino và Robot tiếp cận dễ dàng hơn bao giờ hết, không còn quan tâm đến các phần cứng, và các chương trình con phức tạp. Code đơn giản, ngắn gọn để các bạn chỉ tập trung vào thuật toán giải quyết các vấn đề. Các sản phẩm dùng Easybot:
 
-- Wibot http://stembot.vn/products/wibot
-- RACEbot http://stembot.vn/products/racebot
-- Battlebot http://stembot.vn/products/battlebot
-## Cài Đặt Thư viện
-  Download code từ thư mục này theo định dạng .Zip file. 
-  * Trên Phần mềm Arduino IDE: chọn Sketch/Include Library/Add Zip Library -> Chọn đường dẫn đến file .Zip vừa tải về. 
-  * Khởi động lại Arduino IDE, chọn Tools/Board/Arduino Nano
-  * Vào Files/Examples/Easybot để xem code mẫu
-## Lập trình Scratch với phần mềm mBlock
-  Easybot có thể lập trình bằng ngôn ngữ Scratch thay cho Arduino:
-  https://github.com/stembotvn/Easybot_mBlock_Extension
-  Tài liệu hướng dẫn học Easybot với ngôn ngữ Scratch:
-  https://github.com/stembotvn/Easybot_mBlock_doccument
-## Sử dụng thư viện:
-### Khởi tạo 
-```
-     #include <Easybot.h>
-    EasybotNano Robot; // Một đối tượng robot tên là Robot được tạo ra từ lớp EasybotNano
-````
-### Các hàm di chuyển
-```
-    Robot.stop(); //dừng robot; 
-```
-```
-    Robot.moveForward(speed); //với speed = 0-100(%) 	điều khiển robot di chuyển đi tới với tốc độ speed (bánh bên phải chạy với tốc độ = speed, bánh trái chạy với tốc độ = speed
-```
-```
-    Robot.moveForward(LeftSpeed,rightSpeed); //với leftSpeed, rightSpeed = 0-100 (%), điều khiển robot đi thẳng với tốc độ bên trái và bên phải tùy chỉnh. 
-```
-```
-    Robot.moveBack(speed); // với speed = 0-100(%) 	điều khiển robot di chuyển đi lùi với tốc độ speed (bánh bên phải chạy với tốc độ = speed, bánh trái chạy với tốc độ = speed
-```
-```
-    Robot.turnLeft(speed); //với speed = 0 - 100(%), điều khiển robot quay trái, tâm quay tại tâm robot, bánh trái quay lùi với tốc độ speed, bánh phải quay tới với tốc độ speed 
-```
-```
-    Robot.turnRight(speed); //với speed = 0 - 100(%), điều khiển robot quay phải, tâm quay tại tâm robot, bánh phải quay lùi với tốc độ speed, bánh trái quay tới với tốc độ speed 
-```
-```
-    Robot.turnLeft(speed,time);// hàm quay trái nâng cao với speed = 0 - 100(%): tham số tốc độ , time = 0 -10 :tham số thời gian-> Quay trái robot với tốc độ = speed trong khoảng thời gian là time x 0.1s
-```
-```
-    Robot.turnRight(speed,time); // hàm quay phải nâng cao với speed = 0 - 100(%): tham số tốc độ , time = 0 -10 :tham số thời gian-> Quay phải robot với tốc độ = speed trong khoảng thời gian là time x 0.1s 		
-```
-### Các hàm đọc các cảm biến đi theo combo của Wibot (cảm biến dò line và cảm biến siêu âm đo khoảng cách)
-``` 
-    int value = Robot.readSensor(Channel);  //gán giá trị Analog đọc từ sensor vào biến value kiểu Interger, Channel = LEFTSENSOR,CENTERSENSOR, RIGHTSENSOR
+## Tính năng chính của board mạch Curie trên robot Curibot
+- 2 Động cơ DC
+- Buzzer với thư viện âm thanh phong phú 
+- RGB mixing: trộn màu đèn LED RGB 
+- 2 cảm biến ánh sáng trái phải (giúp robot có thể định hướng theo ánh sáng) 
+- Cảm biến siêu âm SRF04 để đo khoảng cách
+- Cảm biến dò line 3 vị trí giúp robot bám vạch chính xác
+- Động cơ Servo để mở rộng các cơ cấu khác. 
+- Kết nối Wireless với Chip NRF24L01 của Nordic giúp Robot dễ dàng tương tác với máy tính qua ngôn ngữ lập trình Scratch
+- Đồng bộ địa chỉ tự động(pairing giữa robot và card USB wireless NEGENDO) giúp việc thiết lập kết nối nhanh chóng và dễ dàng, không phải cài đặt địa chỉ
+- Cổng mở rộng 4 chân (Digital/Analogs) để kết nối với các Module Add-on, mở rộng các ứng dụng và bài học để đặt bước chân đầu tiên vào thế giới kỹ thuật số với Arduino dễ dàng. 
 
-    Serial.println(value); //xuất giá trị analog từ Sensor ra màn hình PC (Từ Arduino IDE vào Tools/Serial Monitor)
-```
-```
-bool result = Robot.leftSensor(); // Trả về giá trị Logic là 0 hay 1 (True or False) cho cảm biến dò line trái (0: không có vạch, 1: có vạch)
-```
-```
-Serial.print(Robot.leftSensor()); //xuất giá trị kết quả (1 or 0) phân tích từ analog Sensor, ngưỡng mặc định so sánh để phát hiện vạch kẻ là 400
-```   
-```   
- int value = Robot.readSonar(); //Đọc cảm biến siêu âm SRF04 gán giá trị đo khoảng cách tính bằng Cm vào biến Value kiểu Interger
-```	
- 
-    
-  
-  
+## Chế độ hoạt động
+Robot được nạp sẵn firmware cho phép người dùng dễ dàng chuyển đổi các chế độ hoặt động thông qua nút SET trên board mạch, các chế độ có màu từ đèn LED để phân biệt
+
+- 1 - Lập trình Scratch (đồng bộ với chương trình Scratch MIT tiêu chuẩn) thông qua kết nối không dây hoặc có dây
+- 2 - Chạy chương trình đã nạp xuống robot từ phần mềm mBlock (cho phép người dùng viết chương trình Scratch và lưu ở bộ xử lý của robot chứ không phụ thuộc kết nối máy tính và phần mềm Scratch)
+- 3 - Chế độ tránh vật cản
+- 4 - Chế độ dò line
+- 5 - Chế độ đi theo ánh sáng 
+
+Với tính năng dễ dàng chuyển đổi các chế độ, người dùng sẽ chuyển đổi cách thức sử dụng robot linh hoạt mà không cần phải nạp đi nạp lại các chương trình Arduino, khi cần nạp chương trình Arduino để giải quyết bài toán nào đó, chương trình này sẽ lưu tại một vùng nhớ và khởi chạy khi chuyển chế độ bằng nút bấm vào chế độ 2, các tính năng và chế độ khác không bị ảnh hưởng bởi việc nạp chương trình mới. 
+
+## Lập trình
+  Curibot được thiết kế để tương thích việc lập trình Scratch (online và offline), vì vậy các Class và hàm được đóng gói để đơn giản hóa việc tích hợp vào các block của Scratch. 
+  Các hàm Arduino C/C++ API sẽ được hoàn thiện trong thời gian tới để phục vụ việc học lập trình C/C++ cho Curibot. 
+
+## Sử dụng 
+
+  Cài đặt thư viện vào Arduino và nạp file Firmware vào robot, robot sẽ hoàn toàn tương thích và làm việc tốt với phần mềm mBlock.
