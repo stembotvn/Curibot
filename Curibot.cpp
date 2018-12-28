@@ -1,52 +1,52 @@
 #include "Arduino.h"
-#include "Easybot.h"
+#include "Curibot.h"
 
-void EasybotNano::moveForward(int speed){
+void Curibot::moveForward(int speed){
   int movespeed = speed*255/100; 
   LeftMotor.run(movespeed);
   RightMotor.run(movespeed);
 }
 ////
-void EasybotNano::moveBack(int speed){
+void Curibot::moveBack(int speed){
   int  movespeed = speed*255/100; 
   LeftMotor.run(-movespeed);
   RightMotor.run(-movespeed);	
 }
 ////////////////////////////////////////////
-void EasybotNano::moveForward(int leftspeed,int rightspeed)
+void Curibot::moveForward(int leftspeed,int rightspeed)
 {
  	int Lspeed = leftspeed*255/100;
  	int Rspeed = rightspeed*255/100;
  	LeftMotor.run(Lspeed);
  	RightMotor.run(Rspeed);
 }
-
-void EasybotNano::moveRight(int speed)
+///////////////////////////////////////////////////////////////
+void Curibot::moveRight(int speed)
 {	
   moveForward(speed,0);
 }
  ///
-void EasybotNano::moveLeft(int speed)
+void Curibot::moveLeft(int speed)
 {
   moveForward(0,speed);
 }
  
 //////////////////////////////
-void EasybotNano::stop()
+void Curibot::stop()
 {
 	LeftMotor.stop();
   RightMotor.stop();
 }
 ///////////////////////////////
 
-void EasybotNano::turnRight(int speed)
+void Curibot::turnRight(int speed)
 {
   int turnspeed = speed*255/100;
   LeftMotor.run(turnspeed);
   RightMotor.run(-turnspeed);
 }
 /////////////////////////////////////////
-void EasybotNano::turnRight(int speed,int time)
+void Curibot::turnRight(int speed,int time)
 {
   int turnspeed = speed*255/100;
   int i = 0;
@@ -61,14 +61,14 @@ void EasybotNano::turnRight(int speed,int time)
   delay(200);
 }
 /////////////////////
-void EasybotNano::turnLeft(int speed)
+void Curibot::turnLeft(int speed)
 {
   int turnspeed = speed*255/100;
 	LeftMotor.run(-turnspeed);
 	RightMotor.run(turnspeed);
 }
 //////////
-void EasybotNano::turnLeft(int speed,int time)
+void Curibot::turnLeft(int speed,int time)
 {
   int turnspeed = speed*255/100;
   int i = 0;
@@ -82,14 +82,14 @@ void EasybotNano::turnLeft(int speed,int time)
   delay(200);
 }
 ////////////////////////////////
-void EasybotNano::setup_lineSensor(int color, int threshold_detect)
+void Curibot::setup_lineSensor(int color, int threshold_detect)
 {
   _LINE_COLOR = color;
   _line_detect = threshold_detect; 
   pinMode(lineSensor_enable,OUTPUT);
 }
 //////////////////////////////////
-int EasybotNano::readSensor(int channel)
+int Curibot::readSensor(int channel)
 {
   digitalWrite(lineSensor_enable,HIGH);
   int line_value = analogRead(channel);
@@ -97,7 +97,7 @@ int EasybotNano::readSensor(int channel)
   return line_value;
 }
 ///////////////////////////////////////////////////////
-int EasybotNano::leftSensor()
+int Curibot::leftSensor()
 {	
   int value;
   digitalWrite(lineSensor_enable,HIGH);
@@ -106,7 +106,7 @@ int EasybotNano::leftSensor()
   return value;
 }
 ////////////////////////////////////////////////////////
-int EasybotNano::rightSensor()
+int Curibot::rightSensor()
 {
   int value;		
   digitalWrite(lineSensor_enable,HIGH);
@@ -115,7 +115,7 @@ int EasybotNano::rightSensor()
   return value;
 }
 ///////////////////////////////////////////////////
-int EasybotNano::centerSensor()
+int Curibot::centerSensor()
 {
   int value;	
   digitalWrite(lineSensor_enable,HIGH);
@@ -124,19 +124,19 @@ int EasybotNano::centerSensor()
   return value;
 }
 ///////////////////////////////////
-float EasybotNano::readSonar() 
+float Curibot::readSonar() 
 {
   float range = Distance.Ranging(CM);
   delay(100);
   return range;
 }
-void EasybotNano::setServo(int Angle)
+void Curibot::setServo(int Angle)
 {
   // if (!servo.attached) 
   servo.attach(Servo_Pin);
   servo.write(Angle);
 }
-void EasybotNano::lightfollow()
+void Curibot::lightfollow()
 {
   int left = getLight(1);
   int right = getLight(0);
@@ -154,7 +154,7 @@ void EasybotNano::lightfollow()
   }
   
 }
-void EasybotNano::avoidobstacle()
+void Curibot::avoidobstacle()
 {
   int distance = getDistance();
   if (distance > 15){
@@ -176,7 +176,7 @@ void EasybotNano::avoidobstacle()
     }
   }
 }
-void EasybotNano::linefollow()
+void Curibot::linefollow()
 {
   if(centerSensor() > 350)
   {
@@ -192,7 +192,7 @@ void EasybotNano::linefollow()
   }
 }
 //////////// NRF24L01 /////////////////////////////////////////////////////////////////////////
-void EasybotNano::init(int _address)
+void Curibot::init(int _address)
 { 
   delay(1000);
   pinMode(Buzzer_Pin, OUTPUT);
@@ -229,7 +229,7 @@ void EasybotNano::init(int _address)
   processMode = ONLINE;
 }
 ///////////////////////////////////
-int EasybotNano::getLight(byte side){
+int Curibot::getLight(byte side){
   if (!side) {  //LEFT
     int LDRL = analogRead(LDR2);
     LDRL = map(LDRL,0,1000,0,100);
@@ -243,11 +243,11 @@ int EasybotNano::getLight(byte side){
     return LDRR;
   }
 }
-float EasybotNano::getDistance()
+float Curibot::getDistance()
 {
   return Distance.Ranging(CM);
 }
-void EasybotNano::setColor(byte R, byte G, byte B)
+void Curibot::setColor(byte R, byte G, byte B)
 {
   R = R > 255 ? 255 : R;
   G = G > 255 ? 255 : G;
@@ -256,12 +256,12 @@ void EasybotNano::setColor(byte R, byte G, byte B)
   pixels.setPixelColor(0, pixels.Color(R,G,B));
   pixels.show();
 }
-void EasybotNano::offRGB()
+void Curibot::offRGB()
 {
   pixels.setPixelColor(0, pixels.Color(0,0,0));
   pixels.show();
 }
-bool EasybotNano::readButton()
+bool Curibot::readButton()
 {
   int BT = analogRead(SET);
   if(BT > 1020)
@@ -271,7 +271,7 @@ bool EasybotNano::readButton()
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-void EasybotNano::initNRF(int _address)
+void Curibot::initNRF(int _address)
 {
   //config_Address(2,10); 
   bool NRFConnected = false;
@@ -308,7 +308,7 @@ void EasybotNano::initNRF(int _address)
 
   }
 }
-void EasybotNano::resetNRF(){
+void Curibot::resetNRF(){
   #ifdef DEBUG
   Serial.println("Reset RF module");
   #endif
@@ -330,7 +330,7 @@ void EasybotNano::resetNRF(){
   first_run = true;      //set first run for next State
   
 }
-void EasybotNano::load_address()
+void Curibot::load_address()
 { 
    #ifdef DEBUG
    Serial.println("Loading my Config... ");
@@ -346,7 +346,7 @@ void EasybotNano::load_address()
   // Radio.init(myNode);    //init with my Node address
 }
 /////
-bool EasybotNano::inConfig() //check if press CONFIG KEY
+bool Curibot::inConfig() //check if press CONFIG KEY
 {
   uint8_t size;
   long _duration=0;
@@ -391,7 +391,7 @@ bool EasybotNano::inConfig() //check if press CONFIG KEY
 //  first_run = true; 
 }
 ////////////////
-void EasybotNano::config_Address(uint16_t myAddress,uint16_t toAddress){
+void Curibot::config_Address(uint16_t myAddress,uint16_t toAddress){
 
   myNode = myAddress;   //need be checked endianess
   toNode = toAddress;  
@@ -415,7 +415,7 @@ void EasybotNano::config_Address(uint16_t myAddress,uint16_t toAddress){
   #endif                
 }
 ///////////////////////////////////////////////////////////////////////
-int EasybotNano::changeMode()
+int Curibot::changeMode()
 {
   stop();
   Sound.sing(Disconnection);
@@ -471,7 +471,7 @@ int EasybotNano::changeMode()
   }
   return processMode;
 }
-void EasybotNano::process()
+void Curibot::process()
 { 
  //
   static bool first_process = true; 
@@ -516,7 +516,7 @@ void EasybotNano::process()
   while(processMode != OFFLINE);
 }
 ///////////////////////////////////////////////////////////////////////
-void EasybotNano::run(){
+void Curibot::run(){
   if (first_run)  {
     timeStart = millis();
     #ifdef DEBUG 
@@ -555,7 +555,7 @@ void EasybotNano::run(){
  }
 }
 ////////////////////////////////////////////
-void EasybotNano::runFunction(int device)
+void Curibot::runFunction(int device)
 {
   //0xff 0x55 0x6 0x0 0x1 0xa 0x9 0x0 0x0 0xa
   //int port = buffer[6];
@@ -669,7 +669,7 @@ void EasybotNano::runFunction(int device)
   } 
 }
 ////////////////////////////////////////////////////
-void EasybotNano::readSensors(int device)
+void Curibot::readSensors(int device)
 {
   /*****************Recevice*************************
       ff 55 len idx action device port slot data a
@@ -722,7 +722,7 @@ void EasybotNano::readSensors(int device)
   } 
 }
 ////////////////////////////////////////////////////
-void EasybotNano::RC_Run(){
+void Curibot::RC_Run(){
   switch (RC_type){ 
     case LIGHT_FOLLOW: {
       int left = getLight(1);
@@ -773,7 +773,7 @@ void EasybotNano::RC_Run(){
   first_run = true;
 }
 /////////////////////////////////////////////
-void EasybotNano::readSerial(){
+void Curibot::readSerial(){
 
 //isAvailable = false; 
 if (Serial.available() > 0){
@@ -839,7 +839,7 @@ if (Serial.available() > 0){
 }  
 
 ////////////////////////////////////////////
-void EasybotNano::readRF(){
+void Curibot::readRF(){
     RFread_size = 0; 
  //  LEDdebug();
   if ( Radio.RFDataCome() )  {
@@ -888,7 +888,7 @@ void EasybotNano::readRF(){
   */
 }
 ////
-void EasybotNano::PrintDebug(unsigned char *buf,int len){
+void Curibot::PrintDebug(unsigned char *buf,int len){
   for (int i=0;i<len;i++)
   {
     Serial.print(*(buf+i),HEX); Serial.print("-");
@@ -906,7 +906,7 @@ ff 55 idx Type  data  0xa  0xd
 0  1   2    3     4 
 */
 ////////////////////////////////////////////////////
-void EasybotNano::parseData()
+void Curibot::parseData()
 { 
   ind = 0; //reset RF_buffer (send) index
   isStart = false;
@@ -939,23 +939,14 @@ void EasybotNano::parseData()
         }
       }
       else if (Mode == RC_MODE) {    //in RC Mode 
-        if (RC_type != RC_MANUAL) { 
-          callOK();   //response OK to Remote
-          writeRF();  //
-          State = RC; 
-          first_run = true; 
-          #ifdef DEBUG 
-            Serial.println("RC Auto Mode, Goto RC State");
-          #endif
-        }
-        else { 
+     
           callOK();   //response OK when complete action
           State = WRITE_RF; 
           Mode = RUN_MODE;          
           first_run = true; 
-        }
+       
       }  
-      else  {  //in USB wireless mode
+      else  {  //in USB wireless mode or Serial mode for Scratch API processing 
         callOK();   //response OK when complete action
         #ifdef DEBUG 
           Serial.println("Scratch command Done, go to send response");
@@ -968,10 +959,10 @@ void EasybotNano::parseData()
     }
     break;  
   }
-  clearBuffer(buffer,sizeof(buffer));  //clear 20byte of receiving buffers 
+  clearBuffer(buffer,sizeof(buffer));  //clear receiving buffers 
 }
 ///////////
-void EasybotNano::writeRF() {
+void Curibot::writeRF() {
   bool OK = Radio.RFSend(toNode,RF_buf,sizeof(RF_buf));
   if (OK) {
     #ifdef DEBUG 
@@ -994,7 +985,7 @@ void EasybotNano::writeRF() {
   first_run = true;      //set first run for next State
 }
 //////////////////////////
-void EasybotNano::writeSerial(){
+void Curibot::writeSerial(){
 for (int i=0;i<ind+1;i++) {
   Serial.write(RF_buf[i]);
   delayMicroseconds(100);
@@ -1004,7 +995,7 @@ for (int i=0;i<ind+1;i++) {
   State = READ_SERIAL; 
 }
 //////////////////////////////////////////////////////////////
-void EasybotNano::remoteProcessing(){
+void Curibot::remoteProcessing(){
   ////////////////////////////////////////////////
   ///keyState  7  6  5  4  3  2  1   0        ////
   ///          F4 F3 F2 F1 L  R Bwd Fwd       ////
@@ -1072,7 +1063,7 @@ void EasybotNano::remoteProcessing(){
   }*/
 }     
 
-void EasybotNano::EEPROM_writeInt(int address,uint16_t value) 
+void Curibot::EEPROM_writeInt(int address,uint16_t value) 
 {
   //Decomposition from a int to 2 bytes by using bitshift.
   //One = Most significant -> Two = Least significant byte
@@ -1083,49 +1074,49 @@ void EasybotNano::EEPROM_writeInt(int address,uint16_t value)
   EEPROM.write(address + 1, one);    
 }
 /////////////////////////
-uint16_t EasybotNano::EEPROM_readInt(int address)
+uint16_t Curibot::EEPROM_readInt(int address)
 {
   uint16_t two = EEPROM.read(address);
   uint16_t one = EEPROM.read(address+1); 
   return ((two & 0xFF) + ((one<<8)&0xFFFF));
 }
 ///////////////////////////
-void EasybotNano::clearBuffer(unsigned char *buf, int leng){
+void Curibot::clearBuffer(unsigned char *buf, int leng){
   for (int i=0;i<leng;i++) {
     *(buf+i) = 0; 
   }
 }
 
 //Private method for data package
-void EasybotNano::writeHead(){
+void Curibot::writeHead(){
   ind = 0;
   RF_buf[ind++]=0xff;
   RF_buf[ind++]=0x55;
 }
-void EasybotNano::writeEnd(){
+void Curibot::writeEnd(){
 RF_buf[ind++] = 0xd; 
 RF_buf[ind] = 0xa; 
 }
 
-unsigned char EasybotNano::readBuffer(int index){    
+unsigned char Curibot::readBuffer(int index){    
   return buffer[index]; 
 }
-void EasybotNano::writeBuffer(int index,unsigned char c)
+void Curibot::writeBuffer(int index,unsigned char c)
 {
   RF_buf[index]=c;
 }
-void EasybotNano::callOK()
+void Curibot::callOK()
 { ind = 0;
   writeBuffer(ind++,0xff);
   writeBuffer(ind++,0x55);
   writeEnd();
 }
-void EasybotNano::sendByte(char c)
+void Curibot::sendByte(char c)
 {
   writeBuffer(ind++,1);
   writeBuffer(ind++,c);
 }
-void EasybotNano::sendString(String s)
+void Curibot::sendString(String s)
 {
   int l = s.length();
   writeBuffer(ind++,4);
@@ -1135,7 +1126,7 @@ void EasybotNano::sendString(String s)
     writeBuffer(ind++,s.charAt(i));
   }
 }
-void EasybotNano::sendFloat(float value)
+void Curibot::sendFloat(float value)
 {
   writeBuffer(ind++,0x2);
   val.floatVal = value;
@@ -1144,14 +1135,14 @@ void EasybotNano::sendFloat(float value)
   writeBuffer(ind++,val.byteVal[2]);
   writeBuffer(ind++,val.byteVal[3]);
 }
-void EasybotNano::sendShort(double value)
+void Curibot::sendShort(double value)
 {
   writeBuffer(ind++,3);
   valShort.shortVal = value;
   writeBuffer(ind++,valShort.byteVal[0]);
   writeBuffer(ind++,valShort.byteVal[1]);
 }
-void EasybotNano::sendDouble(double value)
+void Curibot::sendDouble(double value)
 {
   writeBuffer(ind++,2);
   valDouble.doubleVal = value;
@@ -1160,14 +1151,14 @@ void EasybotNano::sendDouble(double value)
   writeBuffer(ind++,valDouble.byteVal[2]);
   writeBuffer(ind++,valDouble.byteVal[3]);
 }
-short EasybotNano::readShort(int idx)
+short Curibot::readShort(int idx)
 {
   valShort.byteVal[0] = readBuffer(idx);
   valShort.byteVal[1] = readBuffer(idx+1);
   return valShort.shortVal;
 }
 
-float EasybotNano::readFloat(int idx)
+float Curibot::readFloat(int idx)
 {
   val.byteVal[0] = readBuffer(idx);
   val.byteVal[1] = readBuffer(idx+1);
@@ -1175,7 +1166,7 @@ float EasybotNano::readFloat(int idx)
   val.byteVal[3] = readBuffer(idx+3);
   return val.floatVal;
 }
-long EasybotNano::readLong(int idx)
+long Curibot::readLong(int idx)
 {
   val.byteVal[0] = readBuffer(idx);
   val.byteVal[1] = readBuffer(idx+1);
