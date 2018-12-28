@@ -1043,17 +1043,13 @@ void Curibot::remoteProcessing(){
     stop();
   }
   if (bitRead(keyState,4)) {   //F1 key press(shift)
-    RC_type = RC_MANUAL;
   }
   else if (bitRead(keyState,5)) {  //F2 key press
-    RC_type  = LIGHT_FOLLOW; 
   }
   else if (bitRead(keyState,6)) {  //F3 key press
-    RC_type  = AVOID_OBSTACLE; 
 
   }
   else if (bitRead(keyState,7)) {  //F4 key press
-    RC_type  = CREATE_SOUND; 
 
   }
   /*
