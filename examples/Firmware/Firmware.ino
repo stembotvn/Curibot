@@ -1,6 +1,6 @@
-#include "Easybot.h"
+#include "Curibot.h"
 
-EasybotNano Robot;
+Curibot Robot;
 
 //////////////////////////////////////
 void setup()
