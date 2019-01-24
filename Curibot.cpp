@@ -194,12 +194,13 @@ void Curibot::linefollow()
 //////////// NRF24L01 /////////////////////////////////////////////////////////////////////////
 void Curibot::init(int _address)
 { 
-  delay(1000);
   pinMode(Buzzer_Pin, OUTPUT);
-  pinMode(RGB_Pin, OUTPUT);
+  pinMode(RGB_Pin, OUTPUT);  
   pixels.begin();
   medium = (getLight(LEFT) + getLight(RIGHT)) / 2;
   Serial.begin(115200);
+  delay(1000);
+
   initNRF(_address);
   if (interface == NRF24L01_INTERFACE) {
     State = READ_RF;
@@ -293,7 +294,7 @@ void Curibot::initNRF(int _address)
   if (NRFConnected) {
   Radio.setDataSpeed(RF24_250KBPS); 
   Radio.setChannelRF(108);
-  Radio.setPowerRF(RF24_PA_LOW);
+  Radio.setPowerRF(RF24_PA_MAX);
   //Radio.setRetry(10,3);
   Serial.println("NRF wireless ready!"); 
   Radio.setAutoACK(true);
@@ -958,6 +959,19 @@ void Curibot::parseData()
       }      
     }
     break;  
+    case RESET: {
+    callOK();
+      if (interface == NRF24L01_INTERFACE)  State = WRITE_RF;
+      else State = WRITE_SERIAL;      
+        first_run = true;
+    }
+    break;
+    default: 
+    callOK();
+      if (interface == NRF24L01_INTERFACE)  State = WRITE_RF;
+      else State = WRITE_SERIAL;      
+        first_run = true;
+    break;
   }
   clearBuffer(buffer,sizeof(buffer));  //clear receiving buffers 
 }
