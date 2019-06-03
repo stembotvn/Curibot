@@ -103,7 +103,7 @@ bool EasyRF::RFSend(uint16_t to,const void* buf, uint8_t len){
  //if (rfSpeed == RF24_250KBPS) radio.flush_tx();
  radio.openWritingPipe(convert_address(to));
  OK = radio.write(buf,len); 
- radio.startListening(); 
+ first_reading = true;
  if (!autoACK) OK = true; 
  return OK; 
 }
@@ -142,6 +142,13 @@ len = byteLen;
  }
  ///////////////////////////
 bool EasyRF::RFDataCome(){
+ if (first_reading)  {
+      radio.openReadingPipe(1,convert_address(my_node));
+      radio.startListening(); 
+  
+      first_reading = false; 
+ }
+
  return radio.available();
 }
 ///////////////////////////////

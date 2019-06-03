@@ -199,8 +199,11 @@ void Curibot::init(int _address)
   pixels.begin();
   medium = (getLight(LEFT) + getLight(RIGHT)) / 2;
   Serial.begin(115200);
+    #ifdef DEBUG
+    Serial.print("Init.... ");
+    #endif
   delay(1000);
-
+   
   initNRF(_address);
   if (interface == NRF24L01_INTERFACE) {
     State = READ_RF;
@@ -292,9 +295,9 @@ void Curibot::initNRF(int _address)
   //  Radio.RFbegin();    //init with my Node address
    NRFConnected = Radio.RFbegin();
   if (NRFConnected) {
-  Radio.setDataSpeed(RF24_250KBPS); 
+  Radio.setDataSpeed(RF24_1MBPS); 
   Radio.setChannelRF(108);
-  Radio.setPowerRF(RF24_PA_MAX);
+  Radio.setPowerRF(RF24_PA_LOW);
   //Radio.setRetry(10,3);
   Serial.println("NRF wireless ready!"); 
   Radio.setAutoACK(true);
@@ -507,7 +510,7 @@ void Curibot::process()
       case OFFLINE:
       {
       }
-      break;
+      break; 
       
     }
    // Serial.println("Check button");
@@ -541,7 +544,7 @@ void Curibot::run(){
     }
     break;
     case RC : {
-      RC_Run();
+     // RC_Run();
     }
     break;
     ///
@@ -665,7 +668,7 @@ void Curibot::runFunction(int device)
       keyState = buffer[6];
       varSlide = buffer[7];
       remoteProcessing();      
-
+      
     }break;
   } 
 }
@@ -871,9 +874,13 @@ void Curibot::readRF(){
     else  {
       #ifdef DEBUG
         Serial.println("invalid data received"); 
+        PrintDebug(buffer,buffer[2]+3);
+        Serial.println();
       #endif
       callOK();          // if invalid data, do nothing and send back ACK
       State = WRITE_RF;
+    //    State = READ_RF; 
+
       first_run = true;      //set first run for next State
       return;
     }
@@ -941,8 +948,10 @@ void Curibot::parseData()
       }
       else if (Mode == RC_MODE) {    //in RC Mode 
      
-          callOK();   //response OK when complete action
-          State = WRITE_RF; 
+        //  callOK();   //response OK when complete action
+          State = READ_RF;
+         clearBuffer(buffer,sizeof(buffer));
+         clearBuffer(RF_buf,sizeof(RF_buf));        
           Mode = RUN_MODE;          
           first_run = true; 
        
@@ -1014,51 +1023,42 @@ void Curibot::remoteProcessing(){
   ///keyState  7  6  5  4  3  2  1   0        ////
   ///          F4 F3 F2 F1 L  R Bwd Fwd       ////
   ////////////////////////////////////////////////
-  bool shift = bitRead(keyState,4);
-  speed = map(varSlide,0,100,0,100); //mapping from 0-100% to real delay value of steps 150 ms - 50ms
+  int _angle = 0;
+  bool shift = bitRead(keyState,7);  // F4 key pressed; 
+  _angle = map(varSlide,0,100,0,180); //mapping from 0-100% to real delay value of steps 150 ms - 50ms
+  if (shift) speed = 50; else speed = 100; 
   if (bitRead(keyState,0)) { //forward
-    if(!shift)
-    {
+  
       moveForward(speed);
-    }
-    else 
-      
-    RC_type = RC_MANUAL;
+
+   
   } 
   else if (bitRead(keyState,1)) {
-    if(!shift)
-    {
+   
       moveBack(speed);
-    }
-    else 
-      
-    RC_type = RC_MANUAL;
+  
   }
   else if (bitRead(keyState,2)) {
-    if(!shift)
-    {
-      turnLeft(speed);
-    }
-    else 
-      
-    RC_type = RC_MANUAL;
+  
+      turnRight(speed);
+   
   }
   else if (bitRead(keyState,3)) {
-    if(!shift)
-    {
-      turnRight(speed);
-    }
-    else
-      
-    RC_type = RC_MANUAL;
+ 
+      turnLeft(speed);
+   
   } 
-  else if(!keyState)
+  else if((keyState & 0x0F) == 0  )  //if the direction control is released, stop
   {
     stop();
   }
   if (bitRead(keyState,4)) {   //F1 key press(shift)
   }
-  else if (bitRead(keyState,5)) {  //F2 key press
+  else if (bitRead(keyState,5)) {  //F2 key press, control the Servo
+  setServo(_angle);
+  #if DEBUG 
+   Serial.print("Servo control: "); Serial.println(_angle);
+  #endif
   }
   else if (bitRead(keyState,6)) {  //F3 key press
 
@@ -1072,7 +1072,81 @@ void Curibot::remoteProcessing(){
     RC_type = RC_MANUAL;
   }*/
 }     
+///////////////////////////////////
+void Curibot::remoteInit(){
+ bool NRFConnected = false;
+  
+    #if DEBUG
+    Serial.println("Pairing Mode loading...");
+    #endif
+    load_address();
+    connection = PAIRING;
 
+  Radio.setDynamicPayload(false); // disable Dynamic Payload;
+  //  Radio.RFbegin();    //init with my Node address
+   NRFConnected = Radio.RFbegin();
+  if (NRFConnected) {
+  Radio.setDataSpeed(RF24_1MBPS); 
+  Radio.setChannelRF(108);
+  Radio.setPowerRF(RF24_PA_LOW);
+  Radio.setRetry(10,3);
+  Serial.println("NRF wireless ready!"); 
+  Radio.setAutoACK(true);
+  Radio.init(myNode);
+  interface = NRF24L01_INTERFACE;
+  first_run = true;      //set first run for next State
+  }
+  else {
+      Serial.println("NRF Module is missing"); 
+         //set first run for next State
+
+  }
+}
+
+
+//////////////////////////////////////////////////////////////
+void Curibot::remoteReading(){
+  ////////////////////////////////////////////////
+  ///keyState  7  6  5  4  3  2  1   0        ////
+  ///          F4 F3 F2 F1 L  R Bwd Fwd       ////
+  ////////////////////////////////////////////////
+  int remote_data[2];
+  int _angle = 0;
+  if (first_remoteInit)  {
+    first_remoteInit = false; 
+    remoteInit();
+  }
+  if ( Radio.RFDataCome() )  {
+    #ifdef DEBUG
+    Serial.println("RF data come!");
+    Serial.println(Radio.checkCarrier() ? "Strong signal > 64dBm" : "Weak signal < 64dBm" );
+    #endif
+    while (Radio.RFDataCome()) {
+      Radio.RFRead(remote_data,sizeof(remote_data));
+    }
+   
+   // if (RFread_size <3) return;
+    // int plen = buffer[2];
+   
+      #ifdef DEBUG 
+      Serial.print("received valid Scratch RF data: ");
+      for (int i=0;i<(sizeof(remote_data)/sizeof(remote_data[0]));i++){
+       Serial.print(remote_data[i]);
+      }
+      Serial.println();
+      #endif 
+      
+      #ifdef DEBUG
+        Serial.println("Update_data");
+      #endif  
+      keyState = remote_data[0];
+      varSlide = remote_data[1];
+     // _angle = map(varSlide,0,100,0,180); //mapping from 0-100% to real delay value of steps 150 ms - 50ms
+
+  }
+  
+}  
+///////////////////////////////////////////////////////////
 void Curibot::EEPROM_writeInt(int address,uint16_t value) 
 {
   //Decomposition from a int to 2 bytes by using bitshift.

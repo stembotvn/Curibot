@@ -12,5 +12,7 @@ void setup()
 void loop()                                     //////
 {
   Robot.process();
+  Robot.remoteReading();
+  Robot.remoteProcessing();
 }
 //////////////////////////////////////////////////////

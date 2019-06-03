@@ -111,6 +111,7 @@ uint64_t base_address = TEMPLATE_ADDR;
 uint8_t max_payload = 32; 
 bool  dynPayload_en = true; 
 bool isRF24Connected = false;
+bool first_reading = true;
 rf24_crclength_e crcLen = RF24_CRC_8;
 rf24_datarate_e rfSpeed = RF24_250KBPS;
 rf24_pa_dbm_e rfPower = RF24_PA_LOW;

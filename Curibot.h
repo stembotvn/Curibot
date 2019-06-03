@@ -133,6 +133,7 @@ Stembot V1.0
 ////////////////////////////
 #define  NRF24L01_INTERFACE 1
 #define  SERIAL_INTERFACE 0
+
 ///////////////////////////
 #define MASTER_NODE 0
 #define MAX_PAYLOAD 24
@@ -170,6 +171,8 @@ public:
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   void PrintDebug(unsigned char *buf,int len);
   void remoteProcessing();
+  void remoteReading();
+  void remoteInit();
   void LEDdebug(){
 
     setColor(255,0,255);
@@ -184,7 +187,8 @@ public:
   uint8_t varSlide = 0;
   uint8_t RC_type = RC_MANUAL;
   bool connection = PAIRING; 
-  bool interface = NRF24L01_INTERFACE; 
+  bool interface = NRF24L01_INTERFACE;
+  bool first_remoteInit = true;  
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //void begin();       
   //void waitStart(int distance);  //wait for signing in front of Robot with distance             
@@ -206,15 +210,14 @@ public:
   float readSonar();            		 ///read the distance || Đọc khoảng cách ex: int khoangcach = robot.readSonar();
   void setServo(int angle);
   void disableServo() {servo.detach();}
-
+   
   float  getDistance();        //get Distance in CM
   int  getLight(byte side);  // get Light  level in %
 
   void setColor(byte R, byte G, byte B);
   void offRGB();
   bool readButton();
-
-
+ 
   RF24 myRadio=RF24(CE_PIN,CSN_PIN);
   EasyRF Radio = EasyRF(myRadio);
 
