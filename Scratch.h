@@ -51,13 +51,16 @@ Define of ID function for Scratch interface
 #define PLAYMEMODY 68
 #define SETCOLOR 69
 #define OFFCOLOR 70
-#define CREATESOUND 76
+#define CREATESOUND 79
 ///////GET////////
 #define DISTANCE 71
 #define LIGHT_LEVEL 72
 #define CENTERLINE 73
 #define RIGHTLINE 74
 #define LEFTLINE 75
+#define REMOTECHECK 76
+#define REMOTEBUTTON 77
+#define REMOTEPOT 78
 
 ////////////////////////
 #define CONFIG 80 

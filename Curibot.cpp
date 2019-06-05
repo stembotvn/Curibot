@@ -683,6 +683,10 @@ void Curibot::runFunction(int device)
     //  remoteProcessing();      
       
     }break;
+
+    
+    
+
   }     
 }
 ////////////////////////////////////////////////////
@@ -736,6 +740,29 @@ void Curibot::readSensors(int device)
      sendFloat(actionDone);
     }
     break;
+
+    case REMOTECHECK:
+    {
+    
+     sendFloat(remoteReading());
+     // Mode = RUN_MODE;
+
+    }break;
+
+     
+    case REMOTEBUTTON:
+    {
+        
+    uint8_t button_num = readBuffer(6);   
+    sendFloat(remoteReadButton(button_num));  
+    }break;
+    
+      
+    case REMOTEPOT:
+    {
+        
+     sendShort(remoteReadPot());
+    }break;
   } 
 }
 
@@ -1059,7 +1086,7 @@ void Curibot::remoteInit(){
   Serial.println("NRF wireless ready!"); 
   Radio.setAutoACK(true);
   Radio.init(myNode);
-  interface = NRF24L01_INTERFACE;
+ // interface = NRF24L01_INTERFACE;
   first_run = true;      //set first run for next State
   }
   else {
@@ -1080,7 +1107,7 @@ bool Curibot::remoteReading(){
   int _angle = 0;
   if (first_remoteInit)  {
     first_remoteInit = false; 
-    remoteInit();
+  //  remoteInit();
   }
   if ( Radio.RFDataCome() )  {
     #ifdef DEBUG
