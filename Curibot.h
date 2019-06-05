@@ -105,9 +105,10 @@ Stembot V1.0
 //////// define Mode process ////////////////////
 #define ONLINE 0
 #define OFFLINE 1
-#define AVOID 2
-#define LINE 3
-#define LIGHT 4
+#define AVOID 3
+#define LINE 4
+#define REMOTE 2
+#define LIGHT 5
 ////////define State 
 #define READ_RF   0
 #define PARSING   1
@@ -138,6 +139,14 @@ Stembot V1.0
 #define MASTER_NODE 0
 #define MAX_PAYLOAD 24
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#define REMOTE_FWD  0
+#define REMOTE_BWD  1
+#define REMOTE_RIGHT 2
+#define REMOTE_LEFT  3
+#define REMOTE_F1    4
+#define REMOTE_F2    5  
+#define REMOTE_F3    6
+#define REMOTE_F4    7
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Curibot //: public SoftwareSerial
@@ -171,16 +180,34 @@ public:
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   void PrintDebug(unsigned char *buf,int len);
   void remoteProcessing();
-  void remoteReading();
+  bool remoteReading();
   void remoteInit();
+  bool remoteReadButton(int button); 
+  int  remoteReadPot();
   void LEDdebug(){
+   if  (!LEDScratch_inControl) {
+     if (millis() - LEDstatus_time  > 4000) {
+       LED_duration = millis();
 
-    setColor(255,0,255);
-    delay(500);
-        setColor(0,0,0);
-    delay(500);
+       LEDstate = true; 
+       if (processMode==ONLINE)  setColor(255,0,0);
+       else setColor(0,255,0);
+
+
+       LEDstatus_time = millis();
+       }
+     
+     if (LEDstate && millis()-LED_duration > 50)  {
+       LEDstate = false;
+       setColor(0,0,0);
+     }
+   }
   }
   ////
+   bool LEDScratch_inControl = false; 
+   bool LEDstate;
+  long LED_duration;
+  long LEDstatus_time;
   int State = 0;
   int processMode = 0;
   uint8_t keyState = 0;
@@ -189,6 +216,8 @@ public:
   bool connection = PAIRING; 
   bool interface = NRF24L01_INTERFACE;
   bool first_remoteInit = true;  
+  bool config_RF = false; 
+  bool NRF_available = false; 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //void begin();       
   //void waitStart(int distance);  //wait for signing in front of Robot with distance             

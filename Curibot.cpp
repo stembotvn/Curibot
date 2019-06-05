@@ -202,34 +202,36 @@ void Curibot::init(int _address)
     #ifdef DEBUG
     Serial.print("Init.... ");
     #endif
-  delay(1000);
-   
   initNRF(_address);
-  if (interface == NRF24L01_INTERFACE) {
-    State = READ_RF;
-    setColor(255,0,0);
-    #ifdef DEBUG
-    Serial.print("Curie Start with WireLess interface, Wireless address: ");
-    Serial.println(myNode); 
-  #endif
-  }
-  else  { 
-    State = READ_SERIAL;
-    setColor(0,0,255);
-    Serial.println("Curie Start with Serial USB interface");
-
-  }
-  delay(1000);
-  setColor(0, 0, 0);
-  if (interface == NRF24L01_INTERFACE){
+  
+ // delay(1000);
   if(readButton())
   {
     inConfig();
   }
   else Sound.sing(Mode3);
+  if (NRF_available == true && Mode == CONFIG_MODE) {  //if in config mode 
+    interface = NRF24L01_INTERFACE;
+    State = READ_RF;  // ready for get the addressing config 
+  //  setColor(0,0,255);
+    #ifdef DEBUG
+    Serial.print("Curie Start with WireLess interface, Wireless address: ");
+    Serial.println(myNode); 
+  #endif
   }
-  else Sound.sing(Mode3);
+  else  {
+    interface = SERIAL_INTERFACE; 
+    State = READ_SERIAL;
+    setColor(255,0,0);
+    Serial.println("Curibot Start with Serial USB interface");
+  delay(1000);
+  setColor(0, 0, 0);
+  }
+  
+ 
+  
   first_run = true; 
+  LEDstatus_time = millis();
   processMode = ONLINE;
 }
 ///////////////////////////////////
@@ -302,14 +304,15 @@ void Curibot::initNRF(int _address)
   Serial.println("NRF wireless ready!"); 
   Radio.setAutoACK(true);
   Radio.init(myNode);
-  interface = NRF24L01_INTERFACE;
+ // interface = NRF24L01_INTERFACE;
+  NRF_available = true; 
   first_run = true;      //set first run for next State
   }
   else {
       Serial.println("NRF Module is missing, switch to Serial connection"); 
-      interface = SERIAL_INTERFACE; 
+     // interface = SERIAL_INTERFACE; 
       first_run = true;      //set first run for next State
-
+      NRF_available = false; 
   }
 }
 void Curibot::resetNRF(){
@@ -376,8 +379,10 @@ bool Curibot::inConfig() //check if press CONFIG KEY
       #ifdef DEBUG
       Serial.print("GOING TO CONFIG MODE WITH DEFAULT CONFIG ADDRESS...:");Serial.println(Default_Addr);
       #endif 
-      Mode = CONFIG_MODE; 
+      Mode = CONFIG_MODE;
       accessed = false; 
+      interface = NRF24L01_INTERFACE;
+      State = READ_RF;
      }
     else
     {
@@ -437,7 +442,7 @@ int Curibot::changeMode()
     delay(500);
     offRGB();
   }
-  else if(processMode == LIGHT)
+  else if(processMode == REMOTE)
   {
     #ifdef DEBUG
       Serial.println(String("Process Mode: ") + processMode);
@@ -489,9 +494,14 @@ void Curibot::process()
       }
         break;
       
-      case LIGHT:
-      {
-        lightfollow();
+      case REMOTE:
+      { 
+        if(remoteReading()) {
+        remoteProcessing();
+        LEDstatus_time = millis();
+        }
+        else  LEDdebug();
+
       }
         break;
       
@@ -630,17 +640,20 @@ void Curibot::runFunction(int device)
       break;
     }
     case SETCOLOR:
-    {
+    { 
       byte R = readBuffer(6);
       byte G = readBuffer(7);
       byte B = readBuffer(8);
       setColor(R,G,B);
+      if (R==0 && G==0 && B==0)  LEDScratch_inControl = false; 
+      else LEDScratch_inControl = true; 
       Mode = RUN_MODE;
       break;
     }
     case OFFCOLOR:
     {
       offRGB();
+      LEDScratch_inControl = false; 
       Mode = RUN_MODE;
       break;
     }
@@ -664,13 +677,13 @@ void Curibot::runFunction(int device)
 
     case RCDATA:
     {
-      Mode = RC_MODE; 
-      keyState = buffer[6];
-      varSlide = buffer[7];
-      remoteProcessing();      
+     // Mode = RC_MODE; 
+    //  keyState = buffer[6];
+   //   varSlide = buffer[7];
+    //  remoteProcessing();      
       
     }break;
-  } 
+  }     
 }
 ////////////////////////////////////////////////////
 void Curibot::readSensors(int device)
@@ -773,7 +786,8 @@ void Curibot::RC_Run(){
       if(songname <= 0)  songname = 3;
     } break;
   }
-  State = READ_RF; 
+  if (interface == NRF24L01_INTERFACE)  State = READ_RF; 
+  else State = READ_SERIAL;
   first_run = true;
 }
 /////////////////////////////////////////////
@@ -835,9 +849,10 @@ if (Serial.available() > 0){
          #endif
         index=0;
      }
+  LEDstatus_time = millis();   
   }
  //else Serial.println("No serial comming");
- //else LEDdebug();
+ else LEDdebug();
   
    
 }  
@@ -937,10 +952,12 @@ void Curibot::parseData()
     break;
     case RUN:{ //need DEBUG Here
       runFunction(device);
+      if (device!=SETCOLOR)  LEDScratch_inControl = false;   // enable LED status display
       if (Mode == CONFIG_MODE) { 
         if (device == CONFIG) {
           Mode = RUN_MODE; //done config, go back to run mode, no ACK response
-          State = READ_RF;
+          interface = SERIAL_INTERFACE;
+          State = READ_SERIAL;
           clearBuffer(buffer,sizeof(buffer));
           first_run = true; 
           offRGB();
@@ -949,7 +966,7 @@ void Curibot::parseData()
       else if (Mode == RC_MODE) {    //in RC Mode 
      
         //  callOK();   //response OK when complete action
-          State = READ_RF;
+          State = READ_SERIAL;
          clearBuffer(buffer,sizeof(buffer));
          clearBuffer(RF_buf,sizeof(RF_buf));        
           Mode = RUN_MODE;          
@@ -1026,46 +1043,46 @@ void Curibot::remoteProcessing(){
   int _angle = 0;
   bool shift = bitRead(keyState,7);  // F4 key pressed; 
   _angle = map(varSlide,0,100,0,180); //mapping from 0-100% to real delay value of steps 150 ms - 50ms
-  if (shift) speed = 50; else speed = 100; 
+  if (shift) speed = 60; else speed = 100; 
   if (bitRead(keyState,0)) { //forward
-  
+      setColor(255,0,0);
       moveForward(speed);
 
    
   } 
   else if (bitRead(keyState,1)) {
-   
+     setColor(0,255,0);
+
       moveBack(speed);
   
   }
   else if (bitRead(keyState,2)) {
-  
+      setColor(0,0,255);
+
       turnRight(speed);
    
   }
   else if (bitRead(keyState,3)) {
- 
+      setColor(0,255,255);
+
       turnLeft(speed);
    
   } 
   else if((keyState & 0x0F) == 0  )  //if the direction control is released, stop
   {
     stop();
+          setColor(0,0,0);
+
   }
-  if (bitRead(keyState,4)) {   //F1 key press(shift)
-  }
-  else if (bitRead(keyState,5)) {  //F2 key press, control the Servo
+
+  if (bitRead(keyState,5)) {  //F2 key press, control the Servo
   setServo(_angle);
   #if DEBUG 
    Serial.print("Servo control: "); Serial.println(_angle);
   #endif
   }
-  else if (bitRead(keyState,6)) {  //F3 key press
+  else disableServo();
 
-  }
-  else if (bitRead(keyState,7)) {  //F4 key press
-
-  }
   /*
   else{
     stop();
@@ -1105,7 +1122,7 @@ void Curibot::remoteInit(){
 
 
 //////////////////////////////////////////////////////////////
-void Curibot::remoteReading(){
+bool Curibot::remoteReading(){
   ////////////////////////////////////////////////
   ///keyState  7  6  5  4  3  2  1   0        ////
   ///          F4 F3 F2 F1 L  R Bwd Fwd       ////
@@ -1129,7 +1146,7 @@ void Curibot::remoteReading(){
     // int plen = buffer[2];
    
       #ifdef DEBUG 
-      Serial.print("received valid Scratch RF data: ");
+      Serial.print("received RF data: ");
       for (int i=0;i<(sizeof(remote_data)/sizeof(remote_data[0]));i++){
        Serial.print(remote_data[i]);
       }
@@ -1142,10 +1159,33 @@ void Curibot::remoteReading(){
       keyState = remote_data[0];
       varSlide = remote_data[1];
      // _angle = map(varSlide,0,100,0,180); //mapping from 0-100% to real delay value of steps 150 ms - 50ms
+      return true; 
+  }
+  else {
+    //keyState = 0;
+    //varSlide = 0;
+    return false;
 
   }
   
 }  
+///////////////
+bool Curibot::remoteReadButton(int button) {
+  ////////////////////////////////////////////////
+  ///keyState  7  6  5  4  3  2  1   0        ////
+  ///          F4 F3 F2 F1 L  R Bwd Fwd       ////
+  ////////////////////////////////////////////////
+ return bitRead(keyState,button);
+
+}
+int Curibot::remoteReadPot() {
+  ////////////////////////////////////////////////
+  ///keyState  7  6  5  4  3  2  1   0        ////
+  ///          F4 F3 F2 F1 L  R Bwd Fwd       ////
+  ////////////////////////////////////////////////
+ return varSlide;
+
+}
 ///////////////////////////////////////////////////////////
 void Curibot::EEPROM_writeInt(int address,uint16_t value) 
 {
@@ -1177,24 +1217,28 @@ void Curibot::writeHead(){
   RF_buf[ind++]=0xff;
   RF_buf[ind++]=0x55;
 }
-void Curibot::writeEnd(){
-RF_buf[ind++] = 0xd; 
-RF_buf[ind] = 0xa; 
+/////////////////////////////////////
+void Curibot::writeEnd(){        ////
+RF_buf[ind++] = 0xd;             ////
+RF_buf[ind] = 0xa;               ////
 }
-
+/////////////////////////////////////
 unsigned char Curibot::readBuffer(int index){    
   return buffer[index]; 
 }
+///////////////////////////////
 void Curibot::writeBuffer(int index,unsigned char c)
 {
   RF_buf[index]=c;
 }
+//////////////////////////////////
 void Curibot::callOK()
 { ind = 0;
   writeBuffer(ind++,0xff);
   writeBuffer(ind++,0x55);
   writeEnd();
 }
+//////////////////////////////////
 void Curibot::sendByte(char c)
 {
   writeBuffer(ind++,1);
