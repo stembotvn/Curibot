@@ -167,7 +167,6 @@ public:
   void parseData();
   void writeRF();
   void writeSerial();
-  void RC_Run();
     //////Processing Global////////////
   
   void process();
@@ -190,7 +189,7 @@ public:
        LED_duration = millis();
 
        LEDstate = true; 
-       if (processMode==ONLINE)  setColor(255,0,0);
+       if (processMode==ONLINE)  setColor(255,0,0);  
        else setColor(0,255,0);
 
 
@@ -329,7 +328,6 @@ private:
   short readShort(int idx);
   float readFloat(int idx);
   long readLong(int idx);
-
   void runFunction(int device);
   int searchServoPin(int pin);
   void readSensors(int device);

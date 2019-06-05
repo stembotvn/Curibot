@@ -738,58 +738,7 @@ void Curibot::readSensors(int device)
     break;
   } 
 }
-////////////////////////////////////////////////////
-void Curibot::RC_Run(){
-  switch (RC_type){ 
-    case LIGHT_FOLLOW: {
-      int left = getLight(1);
-      int right = getLight(0);
-      if((right < (medium + 10)) && (left < medium + 10)){
-        stop();
-      }
-      else if((right > (medium + 10)) && (left > medium + 10)){
-        moveForward(speed);
-      }
-      else if((left - right) > 10){
-        turnLeft(speed);
-      }
-      else if((right - left) > 10){
-        turnRight(speed);
-      }
-    } break;
 
-    case AVOID_OBSTACLE: {
-      int distance = getDistance();
-      if (distance > 15){
-        moveForward(speed);
-      }
-      else { 
-        stop();
-        delay(300);
-        moveBack(speed);
-        delay(500);
-        stop();
-        turnLeft(speed);
-        delay(300);
-        stop();
-        if (getDistance()<15){
-          turnRight(speed);
-          delay(600);
-          stop();
-        }
-      }
-    } break;
-    case CREATE_SOUND: {
-      //Sound.playMusic(songname);
-      RC_type = RC_MANUAL;
-      songname--;
-      if(songname <= 0)  songname = 3;
-    } break;
-  }
-  if (interface == NRF24L01_INTERFACE)  State = READ_RF; 
-  else State = READ_SERIAL;
-  first_run = true;
-}
 /////////////////////////////////////////////
 void Curibot::readSerial(){
 
