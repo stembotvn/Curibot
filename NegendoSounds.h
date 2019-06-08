@@ -14,6 +14,7 @@ class NegendoSounds
 public:
 	NegendoSounds(){}
 	void _tone (float noteFrequency, long noteDuration, int silentDuration);
+	void generateNote (float noteFrequency);
 	void _playNote(float noteFrequency, long noteDuration);
     void bendTones (float initFrequency, float finalFrequency, float prop, long noteDuration, int silentDuration);
     void sing(int songName);

@@ -11,6 +11,12 @@ void NegendoSounds::_tone(float noteFrequency, long noteDuration, int silentDura
 	delay(noteDuration);
 	delay(silentDuration);
 }
+void NegendoSounds::generateNote(float noteFrequency)
+{
+	
+	tone(Buzzer_pin, noteFrequency);
+	
+}
 void NegendoSounds::_playNote(float noteFrequency, long noteDuration)
 {
 	tone(Buzzer_pin, noteFrequency, noteDuration);

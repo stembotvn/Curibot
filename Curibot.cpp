@@ -86,32 +86,41 @@ void Curibot::setup_lineSensor(int color, int threshold_detect)
 {
   _LINE_COLOR = color;
   _line_detect = threshold_detect; 
-  pinMode(lineSensor_enable,OUTPUT);
+//  pinMode(lineSensor_enable,OUTPUT);
 }
 //////////////////////////////////
 int Curibot::readSensor(int channel)
 {
+  pinMode(lineSensor_enable,OUTPUT);
   digitalWrite(lineSensor_enable,HIGH);
   int line_value = analogRead(channel);
   digitalWrite(lineSensor_enable,LOW);
+    pinMode(lineSensor_enable,INPUT);
+
   return line_value;
 }
 ///////////////////////////////////////////////////////
 int Curibot::leftSensor()
 {	
   int value;
+  pinMode(lineSensor_enable,OUTPUT);
   digitalWrite(lineSensor_enable,HIGH);
   value = analogRead(leftline_pin);
   digitalWrite(lineSensor_enable,LOW);
+      pinMode(lineSensor_enable,INPUT);
+
   return value;
 }
 ////////////////////////////////////////////////////////
 int Curibot::rightSensor()
 {
   int value;		
+   pinMode(lineSensor_enable,OUTPUT);
   digitalWrite(lineSensor_enable,HIGH);
   value = analogRead(rightline_pin);
   digitalWrite(lineSensor_enable,LOW);
+  pinMode(lineSensor_enable,INPUT);
+
   return value;
 }
 ///////////////////////////////////////////////////
@@ -1105,10 +1114,8 @@ bool Curibot::remoteReading(){
   ////////////////////////////////////////////////
   int remote_data[2];
   int _angle = 0;
-  if (first_remoteInit)  {
-    first_remoteInit = false; 
-  //  remoteInit();
-  }
+  if (!NRF_available)   return 0;
+  
   if ( Radio.RFDataCome() )  {
     #ifdef DEBUG
     Serial.println("RF data come!");

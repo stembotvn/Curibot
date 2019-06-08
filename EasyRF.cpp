@@ -142,6 +142,7 @@ len = byteLen;
  }
  ///////////////////////////
 bool EasyRF::RFDataCome(){
+    if (!radio.isChipConnected()) return 0;
  if (first_reading)  {
       radio.openReadingPipe(1,convert_address(my_node));
       radio.startListening(); 
