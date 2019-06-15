@@ -185,20 +185,62 @@ void Curibot::avoidobstacle()
     }
   }
 }
+int Curibot::lineScan(int detectLevel){
+  int c,l,r; 
+  c = centerSensor();
+  l = leftSensor();
+  r = rightSensor();
+ if (c > detectLevel && l > detectLevel && r > detectLevel) lineState = 10;
+ else {
+    if(c > detectLevel)
+    {
+    lineState = 0;
+     }
+   if(r > detectLevel)
+   {
+    if (lineState == 0 ) lineState = 1;
+    else lineState = 2; 
+   }
+  if(l > detectLevel)
+   {
+    if (lineState == 0 ) lineState = -1;
+    else lineState = -2; 
+    }
+ 
+   if (c < detectLevel && l < detectLevel && r < detectLevel) {
+   if (lineState == 2) lineState = 3;
+   else if (lineState == -2) lineState = -3;
+   else if (lineState == 0) lineState  = -10;
+   }
+
+  }
+  return lineState; 
+}
 void Curibot::linefollow()
-{
-  if(centerSensor() > 350)
+{ /*
+  if(centerSensor() > line_detect)
   {
     moveForward(80,80);
   }
-  else if(rightSensor() > 350)
+  else if(rightSensor() > line_detect)
   {
     turnRight(70);
   }
-  else if(leftSensor() > 350)
+  else if(leftSensor() > line_detect)
   {
     turnLeft(70);
-  }
+  }*/ 
+ int line = lineScan(line_detect);
+ if (line == 0) moveForward (90);
+ else if (line == 1) moveForward (80,60);
+ else if (line == 2) moveForward (70,0);
+ else if (line == 3) turnRight(55);
+ else if (line == -1) moveForward(60,80);
+ else if (line == -2) moveForward(0,70);
+ else if (line == -3) turnLeft(55);
+
+
+
 }
 //////////// NRF24L01 /////////////////////////////////////////////////////////////////////////
 void Curibot::init(int _address)
@@ -772,6 +814,12 @@ void Curibot::readSensors(int device)
         
      sendShort(remoteReadPot());
     }break;
+
+     case LINEPOS:
+    {
+     int detectLevel = readShort(6);   
+     sendFloat(lineScan(detectLevel));
+    }break;
   } 
 }
 
@@ -1027,7 +1075,17 @@ void Curibot::remoteProcessing(){
   ////////////////////////////////////////////////
   int _angle = 0;
   bool shift = bitRead(keyState,7);  // F4 key pressed; 
-  _angle = map(varSlide,0,100,0,180); //mapping from 0-100% to real delay value of steps 150 ms - 50ms
+   //mapping from 0-100% to real delay value of steps 150 ms - 50ms
+  if (varSlide >= 20) {  //F2 key press, control the Servo
+ 
+  _angle = map(varSlide,20,100,0,90);
+   setServo(_angle);
+  #if DEBUG 
+   Serial.print("Servo control: "); Serial.println(_angle);
+  #endif
+  }
+  else disableServo();
+
   if (shift) speed = 60; else speed = 100; 
   if (bitRead(keyState,0)) { //forward
       setColor(255,0,0);
@@ -1060,13 +1118,7 @@ void Curibot::remoteProcessing(){
 
   }
 
-  if (bitRead(keyState,5)) {  //F2 key press, control the Servo
-  setServo(_angle);
-  #if DEBUG 
-   Serial.print("Servo control: "); Serial.println(_angle);
-  #endif
-  }
-  else disableServo();
+  
 
   /*
   else{

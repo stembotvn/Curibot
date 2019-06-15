@@ -61,7 +61,7 @@ Define of ID function for Scratch interface
 #define REMOTECHECK 76
 #define REMOTEBUTTON 77
 #define REMOTEPOT 78
-
+#define LINEPOS 81
 ////////////////////////
 #define CONFIG 80 
 

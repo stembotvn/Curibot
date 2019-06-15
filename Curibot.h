@@ -33,11 +33,11 @@ Stembot V1.0
 
 #include "Scratch.h"
 ///////////////////////////////////////////////////////////
-#define DEBUG 1
+//#define DEBUG 1
 ////define for I/O Pins////////////////////////////////////
 #define _EasybotIO										///
-#define leftline_pin        0							///
-#define rightline_pin       2							///
+#define leftline_pin        2							///
+#define rightline_pin       0							///
 #define centerline_pin      1	
 #define lineSensor_enable   A3
 #define leftline_pin2       
@@ -72,7 +72,7 @@ Stembot V1.0
 #define turn_duration_time    1200   //turn for 1200ms           
 #define deadband_time         50    //gap time btw reverse direction, microseconds
 #ifndef line_detect
-  #define line_detect     	  400   //default threshold value for line detection              ///Default threshold for line detection is 200, if value from sensor > 200 or < 200, the line sensor status is detected or not detected
+  #define line_detect     	  200   //default threshold value for line detection              ///Default threshold for line detection is 200, if value from sensor > 200 or < 200, the line sensor status is detected or not detected
 #endif
 #define linefollow_adj        80      //adjust volume for speed control (%)
 
@@ -212,6 +212,7 @@ public:
   uint8_t keyState = 0;
   uint8_t varSlide = 0;
   uint8_t RC_type = RC_MANUAL;
+  int  lineState = 0;
   bool connection = PAIRING; 
   bool interface = NRF24L01_INTERFACE;
   bool first_remoteInit = true;  
@@ -235,6 +236,7 @@ public:
 	int leftSensor();                   //Read sensor detection, return 1 if detect line, return 0 if not detect line
 	int rightSensor();                  //Read Right line sensor, return 1 if detect line, return 0 if not detect line
 	int centerSensor();				 //Read Center line Sensor, return 1 if detect line, return 0 if not detect line
+  int lineScan(int detectLevel);
   float readSonar();            		 ///read the distance || Đọc khoảng cách ex: int khoangcach = robot.readSonar();
   void setServo(int angle);
   void disableServo() {servo.detach();}
