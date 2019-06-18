@@ -72,6 +72,9 @@ uint8_t ServoTimer2::attach(int pin)
 void ServoTimer2::detach()  
 {
     servos[this->chanIndex].Pin.isActive = false;  
+	isStarted = false; 
+    TIMSK2 = 0;  // disable Timer 2 interrupts 
+
 }
 
 //void ServoTimer2::write(int pulsewidth)
@@ -93,7 +96,7 @@ int ServoTimer2::read()
    return pulsewidth;   
 }
  
-boolean ServoTimer2::attached()
+bool ServoTimer2::isattached()
 {
     return servos[this->chanIndex].Pin.isActive ;
 }

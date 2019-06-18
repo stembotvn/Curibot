@@ -1,12 +1,12 @@
 #include "Arduino.h"
 #include "Curibot.h"
-
-void Curibot::moveForward(int speed){
+///////////////////////////////////////////
+void Curibot::moveForward(int speed){  ////
   int movespeed = speed*255/100; 
   LeftMotor.run(movespeed);
   RightMotor.run(movespeed);
 }
-////
+///////////////////////////////////////////
 void Curibot::moveBack(int speed){
   int  movespeed = speed*255/100; 
   LeftMotor.run(-movespeed);
@@ -141,8 +141,7 @@ float Curibot::readSonar()
 }
 void Curibot::setServo(int Angle)
 {
-  // if (!servo.attached) 
-  servo.attach(Servo_Pin);
+  if (servo.isattached() == false)  servo.attach(Servo_Pin);
   servo.write(Angle);
 }
 void Curibot::lightfollow()
