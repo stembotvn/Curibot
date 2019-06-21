@@ -231,10 +231,10 @@ void Curibot::linefollow()
   }*/ 
  int line = lineScan(line_detect);
  if (line == 0) moveForward (90);
- else if (line == 1) moveForward (80,60);
+ else if (line == 1) moveForward (90,60);
  else if (line == 2) moveForward (70,0);
  else if (line == 3) turnRight(55);
- else if (line == -1) moveForward(60,80);
+ else if (line == -1) moveForward(60,90);
  else if (line == -2) moveForward(0,70);
  else if (line == -3) turnLeft(55);
 

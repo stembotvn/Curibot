@@ -72,7 +72,7 @@ Stembot V1.0
 #define turn_duration_time    1200   //turn for 1200ms           
 #define deadband_time         50    //gap time btw reverse direction, microseconds
 #ifndef line_detect
-  #define line_detect     	  200   //default threshold value for line detection              ///Default threshold for line detection is 200, if value from sensor > 200 or < 200, the line sensor status is detected or not detected
+  #define line_detect     	  300   //default threshold value for line detection              ///Default threshold for line detection is 200, if value from sensor > 200 or < 200, the line sensor status is detected or not detected
 #endif
 #define linefollow_adj        80      //adjust volume for speed control (%)
 
