@@ -209,7 +209,7 @@ int Curibot::lineScan(int detectLevel){
    if (c < detectLevel && l < detectLevel && r < detectLevel) {
    if (lineState == 2) lineState = 3;
    else if (lineState == -2) lineState = -3;
-   else if (lineState == 0) lineState  = -10;
+   else if (lineState == 0 || lineState == 1 || lineState == -1) lineState  = -10;
    }
 
   }
@@ -479,6 +479,7 @@ int Curibot::changeMode()
   stop();
   Sound.sing(Disconnection);
   processMode++;
+  disableServo();   // disable Serve to release timer2 interrupt
   if(processMode == 5)
     processMode = ONLINE;
 
@@ -498,6 +499,7 @@ int Curibot::changeMode()
       Serial.println(String("Process Mode: ") + processMode);
     #endif
     setColor(0,255,0);
+    setServo(0);
     delay(500);
     offRGB();
   }
@@ -528,6 +530,7 @@ int Curibot::changeMode()
     delay(500);
     offRGB();
   }
+
   return processMode;
 }
 void Curibot::process()
@@ -557,13 +560,20 @@ void Curibot::process()
       
       case LINE:
       {
-        linefollow();
+        if (!modeEnable) {
+          if (millis() - modeStartTime > 2000)    modeEnable = true; 
+        }
+        else linefollow();
       }
         break;
       
       case AVOID:
       {
-        avoidobstacle();
+        if (!modeEnable) {
+          if (millis() - modeStartTime > 2000)    modeEnable = true; 
+        }
+        else  avoidobstacle();
+
        }
         break;
 
@@ -574,7 +584,12 @@ void Curibot::process()
       
     }
    // Serial.println("Check button");
-    if(readButton()) changeMode();
+    if(readButton()) {
+      changeMode();
+      modeStartTime = millis();
+      modeEnable = false; 
+
+    }
 
   }
   while(processMode != OFFLINE);
@@ -1075,6 +1090,7 @@ void Curibot::remoteProcessing(){
   int _angle = 0;
   bool shift = bitRead(keyState,7);  // F4 key pressed; 
    //mapping from 0-100% to real delay value of steps 150 ms - 50ms
+  
   if (varSlide >= 20) {  //F2 key press, control the Servo
  
   _angle = map(varSlide,20,100,0,90);
@@ -1083,7 +1099,7 @@ void Curibot::remoteProcessing(){
    Serial.print("Servo control: "); Serial.println(_angle);
   #endif
   }
-  else disableServo();
+  else setServo(0);
 
   if (shift) speed = 60; else speed = 100; 
   if (bitRead(keyState,0)) { //forward

@@ -218,6 +218,8 @@ public:
   bool first_remoteInit = true;  
   bool config_RF = false; 
   bool NRF_available = false; 
+  unsigned long modeStartTime = 0; 
+  bool modeEnable = false; 
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //void begin();       
   //void waitStart(int distance);  //wait for signing in front of Robot with distance             
