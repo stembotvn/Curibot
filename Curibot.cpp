@@ -286,13 +286,13 @@ void Curibot::init(int _address)
 }
 ///////////////////////////////////
 int Curibot::getLight(byte side){
-  if (!side) {  //LEFT
+  if (!side) {  //RIGHT
     int LDRL = analogRead(LDR2);
     LDRL = map(LDRL,0,1000,0,100);
     LDRL = LDRL > 100 ? 100 : LDRL;
     return LDRL;
   } 
-  else {
+  else {       //LEFT
     int LDRR = analogRead(LDR1);
     LDRR = map(LDRR,0,1000,0,100);
     LDRR = LDRR > 100 ? 100 : LDRR;
